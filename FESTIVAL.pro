@@ -9,10 +9,12 @@ CONFIG += c++17
 SOURCES += \
     main.cpp \
     mainwindow.cpp \
+    nota.cpp \
     objeto.cpp
 
 HEADERS += \
     mainwindow.h \
+    nota.h \
     objeto.h
 
 FORMS += \
