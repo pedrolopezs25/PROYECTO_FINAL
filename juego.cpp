@@ -131,3 +131,169 @@ void Juego::actualizar()
 
     actualizarTexto();
 }
+
+// ===================== PARTE 2: nivel 1 (notas) =====================
+
+void Juego::crearNota()
+{
+    // 4 carriles, uno por tecla: A, S, D, F
+    int teclas[4] = { Qt::Key_A, Qt::Key_S, Qt::Key_D, Qt::Key_F };
+    int carril = std::rand() % 4;
+    bool seMece = (std::rand() % 2 == 0);    // la mitad se mecen
+
+    Nota *nota = new Nota(200 + carril * 125, 40, teclas[carril], seMece);
+
+    // DIFICULTAD: en dificil se mecen mas lejos y mas rapido
+    if (dificil) {
+        nota->setMeneo(60, 2);
+    }
+
+    notas.append(nota);
+    escena->addItem(nota);
+}
+
+void Juego::revisarTecla(int tecla)
+{
+    // Buscamos una nota de esa tecla que este cerca de la linea
+    for (int i = 0; i < notas.size(); i++) {
+        Nota *nota = notas[i];
+        bool cerca = nota->y() > 430 && nota->y() < 520;
+
+        if (nota->getTecla() == tecla && cerca) {
+            jugador->sumarPuntos(10);
+            emit acierto();
+
+            escena->removeItem(nota);
+            delete nota;                // liberamos la memoria
+            notas.removeAt(i);
+            return;
+        }
+    }
+    // Si no encontro ninguna, la persona fallo
+    jugador->sumarFallo();
+    emit fallo();
+}
+
+void Juego::revisarNotasPerdidas()
+{
+    // Recorremos al reves para poder borrar sin saltarnos ninguna
+    for (int i = notas.size() - 1; i >= 0; i--) {
+        if (notas[i]->salioDePantalla(600)) {
+            jugador->sumarFallo();
+            emit fallo();
+
+            escena->removeItem(notas[i]);
+            delete notas[i];
+            notas.removeAt(i);
+        }
+    }
+}
+
+// ===================== PARTE 3: nivel 2 (instrumentos y arepas) =====================
+
+void Juego::lanzarInstrumento()
+{
+    Instrumento *instrumento = rival->actuar();   // el agente decide y lanza
+    instrumentos.append(instrumento);
+    escena->addItem(instrumento);
+    lanzados = lanzados + 1;
+}
+
+void Juego::crearArepa()
+{
+    double x = 50 + std::rand() % 700;
+    Arepa *arepa = new Arepa(x, 40);
+    arepas.append(arepa);
+    escena->addItem(arepa);
+}
+
+void Juego::revisarInstrumentos()
+{
+    for (int i = instrumentos.size() - 1; i >= 0; i--) {
+        Instrumento *instrumento = instrumentos[i];
+        bool atrapado = jugador->collidesWithItem(instrumento);
+        bool perdido = instrumento->salioDePantalla(600);
+
+        if (atrapado || perdido) {
+            if (atrapado) {
+                jugador->sumarPuntos(10);
+                jugador->cargarInstrumento();   // pesa: se vuelve mas lento
+                emit acierto();
+            } else {
+                jugador->sumarFallo();
+                emit fallo();
+            }
+
+            // El agente PERCIBE lo que paso y APRENDE
+            rival->percibir(instrumento->x(), atrapado);
+            rival->aprender();
+
+            escena->removeItem(instrumento);
+            delete instrumento;
+            instrumentos.removeAt(i);
+        }
+    }
+}
+
+void Juego::revisarArepas()
+{
+    for (int i = arepas.size() - 1; i >= 0; i--) {
+        Arepa *arepa = arepas[i];
+        bool atrapada = jugador->collidesWithItem(arepa);
+
+        if (atrapada) {
+            jugador->comerArepa();              // se vuelve mas rapido
+            emit acierto();
+        }
+        if (atrapada || arepa->salioDePantalla(600)) {
+            escena->removeItem(arepa);
+            delete arepa;
+            arepas.removeAt(i);
+        }
+    }
+}
+
+// ===================== PARTE 4: texto y final =====================
+
+void Juego::actualizarTexto()
+{
+    QString mensaje = "Nivel " + QString::number(nivel)
+    + "    Puntos: " + QString::number(jugador->getPuntaje())
+        + "    Fallos: " + QString::number(jugador->getFallos());
+
+    if (nivel == 1) {
+        mensaje = mensaje + "    Tiempo: " + QString::number(tiempoRestante);
+    } else {
+        mensaje = mensaje + "    Lanzados: " + QString::number(lanzados) + "/15";
+    }
+    texto->setPlainText(mensaje);
+}
+
+void Juego::terminarNivel()
+{
+    timer->stop();
+    borrarTodo();
+    emit nivelTerminado(nivel, jugador->getPuntaje());
+}
+
+void Juego::borrarTodo()
+{
+    // Borramos todo lo que quedo en pantalla (liberar memoria)
+    for (int i = 0; i < notas.size(); i++) {
+        escena->removeItem(notas[i]);
+        delete notas[i];
+    }
+    notas.clear();
+
+    for (int i = 0; i < instrumentos.size(); i++) {
+        escena->removeItem(instrumentos[i]);
+        delete instrumentos[i];
+    }
+    instrumentos.clear();
+
+    for (int i = 0; i < arepas.size(); i++) {
+        escena->removeItem(arepas[i]);
+        delete arepas[i];
+    }
+    arepas.clear();
+}

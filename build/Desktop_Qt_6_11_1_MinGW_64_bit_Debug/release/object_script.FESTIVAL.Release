@@ -1,0 +1,11 @@
+release/arepa.o
+release/instrumento.o
+release/juego.o
+release/jugador.o
+release/main.o
+release/mainwindow.o
+release/nota.o
+release/objeto.o
+release/rival.o
+release/moc_juego.o
+release/moc_mainwindow.o
