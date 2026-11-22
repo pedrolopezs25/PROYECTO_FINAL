@@ -9,6 +9,7 @@ CONFIG += c++17
 SOURCES += \
     arepa.cpp \
     instrumento.cpp \
+    juego.cpp \
     jugador.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -19,6 +20,7 @@ SOURCES += \
 HEADERS += \
     arepa.h \
     instrumento.h \
+    juego.h \
     jugador.h \
     mainwindow.h \
     nota.h \
