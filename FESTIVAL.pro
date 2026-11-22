@@ -13,7 +13,8 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     nota.cpp \
-    objeto.cpp
+    objeto.cpp \
+    rival.cpp
 
 HEADERS += \
     arepa.h \
@@ -21,7 +22,8 @@ HEADERS += \
     jugador.h \
     mainwindow.h \
     nota.h \
-    objeto.h
+    objeto.h \
+    rival.h
 
 FORMS += \
     mainwindow.ui
