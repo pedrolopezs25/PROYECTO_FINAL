@@ -2,14 +2,14 @@
 #include <QBrush>
 
 Instrumento::Instrumento(double x, double y, double velX, double velY, bool rebota)
-    : Objeto(x, y, 25, 25)   // llama al constructor del padre (cuadro de 25x25)
+    : Objeto(x, y, 50, 50)   // llama al constructor del padre (cuadro de 50x50)
 {
     this->velX = velX;       // velocidad inicial (la da el rival al lanzar)
     this->velY = velY;
     this->rebota = rebota;
 
     gravedad = 0.3;
-    piso = 575;              // la escena mide 600 de alto
+    piso = 550;              // 600 de alto - 50 del instrumento
     restitucion = 0.6;
 
     // Los que rebotan son morados, los normales rojos
@@ -18,6 +18,8 @@ Instrumento::Instrumento(double x, double y, double velX, double velY, bool rebo
     } else {
         setBrush(QBrush(Qt::darkRed));
     }
+
+    ponerImagen(":/imagenes/acordeon.png");
 }
 
 void Instrumento::mover()

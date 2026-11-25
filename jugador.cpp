@@ -1,5 +1,8 @@
 #include "jugador.h"
 #include <QBrush>
+#include <QGraphicsPixmapItem>
+#include <QPixmap>
+#include <QPen>
 
 Jugador::Jugador(double x, double y)
 {
@@ -10,9 +13,18 @@ Jugador::Jugador(double x, double y)
     puntaje = 0;
     fallos = 0;
 
-    setRect(0, 0, 60, 40);          // tamano del personaje
+    setRect(0, 0, 90, 120);          // tamano del personaje
     setBrush(QBrush(Qt::blue));
     setPos(posX, posY);
+
+    // Imagen del personaje (si no la encuentra, queda el cuadro de color)
+    QPixmap imagen(":/imagenes/jugador.png");
+    if (!imagen.isNull()) {
+        imagen = imagen.scaled(90, 120, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        new QGraphicsPixmapItem(imagen, this);   // hija: se mueve con el
+        setPen(Qt::NoPen);
+        setBrush(Qt::NoBrush);
+    }
 }
 
 void Jugador::moverIzquierda()
@@ -27,8 +39,8 @@ void Jugador::moverIzquierda()
 void Jugador::moverDerecha()
 {
     posX = posX + velocidad;
-    if (posX > 740) {
-        posX = 740;                 // 800 de ancho - 60 del jugador
+    if (posX > 710) {
+        posX = 710;                 // 800 de ancho - 90 del jugador
     }
     setPos(posX, posY);
 }

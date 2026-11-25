@@ -2,6 +2,7 @@
 #define OBJETO_H
 
 #include <QGraphicsRectItem>
+#include <QString>
 
 // Clase PADRE de todo lo que se mueve en el juego.
 // Aqui va la FISICA BASICA: posicion y velocidad.
@@ -15,6 +16,9 @@ public:
     virtual void mover();
 
     bool salioDePantalla(double altoPantalla);
+
+    // Le pone una imagen encima al rectangulo (si la encuentra)
+    void ponerImagen(QString ruta);
 
 protected:
     double posX;   // posicion horizontal

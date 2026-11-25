@@ -20,6 +20,10 @@ Nota::Nota(double x, double y, int tecla, bool seMece)
     } else {
         setBrush(QBrush(Qt::yellow));
     }
+
+    // Imagen segun la tecla: nota_a.png, nota_s.png, nota_d.png o nota_f.png
+    QString letra = QString(QChar(tecla)).toLower();
+    ponerImagen(":/imagenes/nota_" + letra + ".png");
 }
 
 void Nota::mover()

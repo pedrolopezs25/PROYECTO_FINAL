@@ -333,6 +333,7 @@ release/moc_juego.cpp: ../../juego.h \
 		../../rival.h \
 		../../instrumento.h \
 		../../objeto.h \
+		C:/Qt/6.11.1/mingw_64/include/QtCore/QString \
 		../../nota.h \
 		../../arepa.h \
 		release/moc_predefs.h \
@@ -573,6 +574,7 @@ release/moc_mainwindow.cpp: ../../mainwindow.h \
 		../../rival.h \
 		../../instrumento.h \
 		../../objeto.h \
+		C:/Qt/6.11.1/mingw_64/include/QtCore/QString \
 		../../nota.h \
 		../../arepa.h \
 		release/moc_predefs.h \
@@ -758,6 +760,7 @@ release/arepa.o: ../../arepa.cpp ../../arepa.h \
 		C:/Qt/6.11.1/mingw_64/include/QtGui/qrgba64.h \
 		C:/Qt/6.11.1/mingw_64/include/QtGui/qimage.h \
 		C:/Qt/6.11.1/mingw_64/include/QtGui/qpixelformat.h \
+		C:/Qt/6.11.1/mingw_64/include/QtCore/QString \
 		C:/Qt/6.11.1/mingw_64/include/QtGui/QBrush \
 		C:/Qt/6.11.1/mingw_64/include/QtGui/qbrush.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o release\arepa.o ..\..\arepa.cpp
@@ -918,6 +921,7 @@ release/instrumento.o: ../../instrumento.cpp ../../instrumento.h \
 		C:/Qt/6.11.1/mingw_64/include/QtGui/qrgba64.h \
 		C:/Qt/6.11.1/mingw_64/include/QtGui/qimage.h \
 		C:/Qt/6.11.1/mingw_64/include/QtGui/qpixelformat.h \
+		C:/Qt/6.11.1/mingw_64/include/QtCore/QString \
 		C:/Qt/6.11.1/mingw_64/include/QtGui/QBrush \
 		C:/Qt/6.11.1/mingw_64/include/QtGui/qbrush.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o release\instrumento.o ..\..\instrumento.cpp
@@ -1092,10 +1096,12 @@ release/juego.o: ../../juego.cpp ../../juego.h \
 		../../rival.h \
 		../../instrumento.h \
 		../../objeto.h \
+		C:/Qt/6.11.1/mingw_64/include/QtCore/QString \
 		../../nota.h \
 		../../arepa.h \
 		C:/Qt/6.11.1/mingw_64/include/QtGui/QBrush \
-		C:/Qt/6.11.1/mingw_64/include/QtGui/QFont
+		C:/Qt/6.11.1/mingw_64/include/QtGui/QFont \
+		C:/Qt/6.11.1/mingw_64/include/QtGui/QPixmap
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o release\juego.o ..\..\juego.cpp
 
 release/jugador.o: ../../jugador.cpp ../../jugador.h \
@@ -1254,7 +1260,11 @@ release/jugador.o: ../../jugador.cpp ../../jugador.h \
 		C:/Qt/6.11.1/mingw_64/include/QtGui/qimage.h \
 		C:/Qt/6.11.1/mingw_64/include/QtGui/qpixelformat.h \
 		C:/Qt/6.11.1/mingw_64/include/QtGui/QBrush \
-		C:/Qt/6.11.1/mingw_64/include/QtGui/qbrush.h
+		C:/Qt/6.11.1/mingw_64/include/QtGui/qbrush.h \
+		C:/Qt/6.11.1/mingw_64/include/QtWidgets/QGraphicsPixmapItem \
+		C:/Qt/6.11.1/mingw_64/include/QtGui/QPixmap \
+		C:/Qt/6.11.1/mingw_64/include/QtGui/QPen \
+		C:/Qt/6.11.1/mingw_64/include/QtGui/qpen.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o release\jugador.o ..\..\jugador.cpp
 
 release/main.o: ../../main.cpp ../../mainwindow.h \
@@ -1491,6 +1501,7 @@ release/main.o: ../../main.cpp ../../mainwindow.h \
 		../../rival.h \
 		../../instrumento.h \
 		../../objeto.h \
+		C:/Qt/6.11.1/mingw_64/include/QtCore/QString \
 		../../nota.h \
 		../../arepa.h \
 		C:/Qt/6.11.1/mingw_64/include/QtWidgets/QApplication \
@@ -1735,6 +1746,7 @@ release/mainwindow.o: ../../mainwindow.cpp ../../mainwindow.h \
 		../../rival.h \
 		../../instrumento.h \
 		../../objeto.h \
+		C:/Qt/6.11.1/mingw_64/include/QtCore/QString \
 		../../nota.h \
 		../../arepa.h \
 		ui_mainwindow.h \
@@ -1910,6 +1922,7 @@ release/nota.o: ../../nota.cpp ../../nota.h \
 		C:/Qt/6.11.1/mingw_64/include/QtGui/qrgba64.h \
 		C:/Qt/6.11.1/mingw_64/include/QtGui/qimage.h \
 		C:/Qt/6.11.1/mingw_64/include/QtGui/qpixelformat.h \
+		C:/Qt/6.11.1/mingw_64/include/QtCore/QString \
 		C:/Qt/6.11.1/mingw_64/include/QtGui/QBrush \
 		C:/Qt/6.11.1/mingw_64/include/QtGui/qbrush.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o release\nota.o ..\..\nota.cpp
@@ -2068,7 +2081,13 @@ release/objeto.o: ../../objeto.cpp ../../objeto.h \
 		C:/Qt/6.11.1/mingw_64/include/QtGui/qrgb.h \
 		C:/Qt/6.11.1/mingw_64/include/QtGui/qrgba64.h \
 		C:/Qt/6.11.1/mingw_64/include/QtGui/qimage.h \
-		C:/Qt/6.11.1/mingw_64/include/QtGui/qpixelformat.h
+		C:/Qt/6.11.1/mingw_64/include/QtGui/qpixelformat.h \
+		C:/Qt/6.11.1/mingw_64/include/QtCore/QString \
+		C:/Qt/6.11.1/mingw_64/include/QtWidgets/QGraphicsPixmapItem \
+		C:/Qt/6.11.1/mingw_64/include/QtGui/QPixmap \
+		C:/Qt/6.11.1/mingw_64/include/QtGui/QPen \
+		C:/Qt/6.11.1/mingw_64/include/QtGui/qpen.h \
+		C:/Qt/6.11.1/mingw_64/include/QtGui/qbrush.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o release\objeto.o ..\..\objeto.cpp
 
 release/rival.o: ../../rival.cpp ../../rival.h \
@@ -2228,8 +2247,13 @@ release/rival.o: ../../rival.cpp ../../rival.h \
 		C:/Qt/6.11.1/mingw_64/include/QtGui/qpixelformat.h \
 		../../instrumento.h \
 		../../objeto.h \
+		C:/Qt/6.11.1/mingw_64/include/QtCore/QString \
 		C:/Qt/6.11.1/mingw_64/include/QtGui/QBrush \
-		C:/Qt/6.11.1/mingw_64/include/QtGui/qbrush.h
+		C:/Qt/6.11.1/mingw_64/include/QtGui/qbrush.h \
+		C:/Qt/6.11.1/mingw_64/include/QtWidgets/QGraphicsPixmapItem \
+		C:/Qt/6.11.1/mingw_64/include/QtGui/QPixmap \
+		C:/Qt/6.11.1/mingw_64/include/QtGui/QPen \
+		C:/Qt/6.11.1/mingw_64/include/QtGui/qpen.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o release\rival.o ..\..\rival.cpp
 
 release/qrc_imagenes.o: release/qrc_imagenes.cpp 

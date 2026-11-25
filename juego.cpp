@@ -1,6 +1,7 @@
 #include "juego.h"
 #include <QBrush>
 #include <QFont>
+#include <QPixmap>
 #include <stdexcept>
 #include <cstdlib>
 
@@ -8,9 +9,14 @@
 
 Juego::Juego(QObject *padre) : QObject(padre)
 {
-    // Escena de 800 x 600 con fondo oscuro
+    // Escena de 800 x 600 con imagen de fondo
     escena = new QGraphicsScene(0, 0, 800, 600, this);
-    escena->setBackgroundBrush(QBrush(QColor(40, 20, 60)));
+    QPixmap fondo(":/imagenes/fondo.png");
+    if (fondo.isNull()) {
+        escena->setBackgroundBrush(QBrush(QColor(40, 20, 60)));   // color si no hay imagen
+    } else {
+        escena->setBackgroundBrush(QBrush(fondo.scaled(800, 600)));
+    }
 
     // Texto de arriba (puntos y tiempo)
     texto = new QGraphicsTextItem();
@@ -26,10 +32,10 @@ Juego::Juego(QObject *padre) : QObject(padre)
     escena->addItem(linea);
 
     // Personajes (se crean UNA vez con new = memoria dinamica)
-    jugador = new Jugador(370, 550);
+    jugador = new Jugador(370, 510);
     escena->addItem(jugador);
 
-    rival = new Rival(370, 20);
+    rival = new Rival(370, 45);
     escena->addItem(rival);
 
     // Timer: cada 30 ms llama a actualizar()

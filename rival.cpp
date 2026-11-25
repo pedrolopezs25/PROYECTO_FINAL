@@ -1,5 +1,8 @@
 #include "rival.h"
 #include <QBrush>
+#include <QGraphicsPixmapItem>
+#include <QPixmap>
+#include <QPen>
 #include <cstdlib>
 
 Rival::Rival(double x, double y)
@@ -11,9 +14,18 @@ Rival::Rival(double x, double y)
     fallosIzquierda = 0;     // al inicio no sabe nada
     fallosDerecha = 0;
 
-    setRect(0, 0, 60, 40);
+    setRect(0, 0, 90, 120);
     setBrush(QBrush(Qt::darkGreen));
     setPos(posX, posY);
+
+    // Imagen del personaje (si no la encuentra, queda el cuadro de color)
+    QPixmap imagen(":/imagenes/rival.png");
+    if (!imagen.isNull()) {
+        imagen = imagen.scaled(90, 120, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        new QGraphicsPixmapItem(imagen, this);   // hija: se mueve con el
+        setPen(Qt::NoPen);
+        setBrush(Qt::NoBrush);
+    }
 }
 
 // 1. PERCIBIR: se fija donde cayo el instrumento y si lo atraparon
