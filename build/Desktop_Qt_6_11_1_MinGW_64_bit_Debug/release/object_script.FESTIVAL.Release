@@ -7,5 +7,7 @@ release/mainwindow.o
 release/nota.o
 release/objeto.o
 release/rival.o
+release/qrc_imagenes.o
+release/qrc_sonidos.o
 release/moc_juego.o
 release/moc_mainwindow.o

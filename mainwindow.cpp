@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include <QMessageBox>
 #include <stdexcept>
+#include <QUrl>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -19,6 +20,32 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Cuando el juego avise que termino un nivel, llamamos a cuandoTerminaNivel
     connect(juego, &Juego::nivelTerminado, this, &MainWindow::cuandoTerminaNivel);
+
+    // ----- SONIDOS -----
+    // Musica de fondo: se repite sin parar
+    musica = new QMediaPlayer(this);
+    salidaMusica = new QAudioOutput(this);
+    musica->setAudioOutput(salidaMusica);
+    musica->setSource(QUrl("qrc:/sonidos/musica.mp3"));
+    musica->setLoops(QMediaPlayer::Infinite);
+    salidaMusica->setVolume(0.4);
+    musica->play();
+
+    // Sonido de acierto
+    sonidoAcierto = new QMediaPlayer(this);
+    salidaAcierto = new QAudioOutput(this);
+    sonidoAcierto->setAudioOutput(salidaAcierto);
+    sonidoAcierto->setSource(QUrl("qrc:/sonidos/acierto.mp3"));
+
+    // Sonido de fallo
+    sonidoFallo = new QMediaPlayer(this);
+    salidaFallo = new QAudioOutput(this);
+    sonidoFallo->setAudioOutput(salidaFallo);
+    sonidoFallo->setSource(QUrl("qrc:/sonidos/fallo.mp3"));
+
+    // Cuando el juego avise acierto o fallo, suena el sonido
+    connect(juego, &Juego::acierto, this, &MainWindow::sonarAcierto);
+    connect(juego, &Juego::fallo, this, &MainWindow::sonarFallo);
 
     // Preguntamos la dificultad (cambia que tanto se mecen las notas)
     QMessageBox::StandardButton respuesta = QMessageBox::question(
@@ -51,4 +78,16 @@ void MainWindow::cuandoTerminaNivel(int numeroNivel, int puntaje)
                                  "Puntaje final: " + QString::number(puntaje));
         close();
     }
+}
+
+void MainWindow::sonarAcierto()
+{
+    sonidoAcierto->setPosition(0);   // vuelve al inicio por si ya estaba sonando
+    sonidoAcierto->play();
+}
+
+void MainWindow::sonarFallo()
+{
+    sonidoFallo->setPosition(0);
+    sonidoFallo->play();
 }

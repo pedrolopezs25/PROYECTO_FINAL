@@ -1,0 +1,13 @@
+<RCC>
+    <qresource prefix="/">
+        <file>imagenes/fondo.png</file>
+        <file>imagenes/jugador.png</file>
+        <file>imagenes/rival.png</file>
+        <file>imagenes/nota_a.png</file>
+        <file>imagenes/nota_s.png</file>
+        <file>imagenes/nota_d.png</file>
+        <file>imagenes/nota_f.png</file>
+        <file>imagenes/acordeon.png</file>
+        <file>imagenes/arepa.png</file>
+    </qresource>
+</RCC>

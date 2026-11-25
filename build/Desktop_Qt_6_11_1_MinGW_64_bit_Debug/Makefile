@@ -408,6 +408,7 @@ Makefile: ../../FESTIVAL.pro C:/Qt/6.11.1/mingw_64/mkspecs/win32-g++/qmake.conf 
 		C:/Qt/6.11.1/mingw_64/mkspecs/features/qt_config.prf \
 		C:/Qt/6.11.1/mingw_64/mkspecs/win32-g++/qmake.conf \
 		C:/Qt/6.11.1/mingw_64/mkspecs/features/spec_post.prf \
+		.qmake.stash \
 		C:/Qt/6.11.1/mingw_64/mkspecs/features/exclusive_builds.prf \
 		C:/Qt/6.11.1/mingw_64/mkspecs/features/toolchain.prf \
 		C:/Qt/6.11.1/mingw_64/mkspecs/features/default_pre.prf \
@@ -434,11 +435,14 @@ Makefile: ../../FESTIVAL.pro C:/Qt/6.11.1/mingw_64/mkspecs/win32-g++/qmake.conf 
 		C:/Qt/6.11.1/mingw_64/mkspecs/features/lex.prf \
 		../../FESTIVAL.pro \
 		C:/Qt/6.11.1/mingw_64/lib/Qt6Widgets.prl \
+		C:/Qt/6.11.1/mingw_64/lib/Qt6Multimedia.prl \
 		C:/Qt/6.11.1/mingw_64/lib/Qt6Gui.prl \
+		C:/Qt/6.11.1/mingw_64/lib/Qt6Network.prl \
 		C:/Qt/6.11.1/mingw_64/lib/Qt6Core.prl \
 		C:/Qt/6.11.1/mingw_64/lib/Qt6EntryPoint.prl \
-		.qmake.stash \
-		C:/Qt/6.11.1/mingw_64/mkspecs/features/build_pass.prf
+		C:/Qt/6.11.1/mingw_64/mkspecs/features/build_pass.prf \
+		../../imagenes.qrc \
+		../../sonidos.qrc
 	$(QMAKE) -o Makefile ..\..\FESTIVAL.pro -spec win32-g++ "CONFIG+=debug" "CONFIG+=qml_debug"
 C:/Qt/6.11.1/mingw_64/mkspecs/features/spec_pre.prf:
 C:/Qt/6.11.1/mingw_64/mkspecs/features/device_config.prf:
@@ -778,6 +782,7 @@ C:/Qt/6.11.1/mingw_64/mkspecs/features/qt_functions.prf:
 C:/Qt/6.11.1/mingw_64/mkspecs/features/qt_config.prf:
 C:/Qt/6.11.1/mingw_64/mkspecs/win32-g++/qmake.conf:
 C:/Qt/6.11.1/mingw_64/mkspecs/features/spec_post.prf:
+.qmake.stash:
 C:/Qt/6.11.1/mingw_64/mkspecs/features/exclusive_builds.prf:
 C:/Qt/6.11.1/mingw_64/mkspecs/features/toolchain.prf:
 C:/Qt/6.11.1/mingw_64/mkspecs/features/default_pre.prf:
@@ -804,11 +809,14 @@ C:/Qt/6.11.1/mingw_64/mkspecs/features/yacc.prf:
 C:/Qt/6.11.1/mingw_64/mkspecs/features/lex.prf:
 ../../FESTIVAL.pro:
 C:/Qt/6.11.1/mingw_64/lib/Qt6Widgets.prl:
+C:/Qt/6.11.1/mingw_64/lib/Qt6Multimedia.prl:
 C:/Qt/6.11.1/mingw_64/lib/Qt6Gui.prl:
+C:/Qt/6.11.1/mingw_64/lib/Qt6Network.prl:
 C:/Qt/6.11.1/mingw_64/lib/Qt6Core.prl:
 C:/Qt/6.11.1/mingw_64/lib/Qt6EntryPoint.prl:
-.qmake.stash:
 C:/Qt/6.11.1/mingw_64/mkspecs/features/build_pass.prf:
+../../imagenes.qrc:
+../../sonidos.qrc:
 qmake: FORCE
 	@$(QMAKE) -o Makefile ..\..\FESTIVAL.pro -spec win32-g++ "CONFIG+=debug" "CONFIG+=qml_debug"
 

@@ -7,5 +7,7 @@ debug/mainwindow.o
 debug/nota.o
 debug/objeto.o
 debug/rival.o
+debug/qrc_imagenes.o
+debug/qrc_sonidos.o
 debug/moc_juego.o
 debug/moc_mainwindow.o

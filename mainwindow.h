@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <QGraphicsView>
 #include <QKeyEvent>
+#include <QMediaPlayer>
+#include <QAudioOutput>
 #include "juego.h"
 
 QT_BEGIN_NAMESPACE
@@ -13,7 +15,7 @@ class MainWindow;
 QT_END_NAMESPACE
 
 // La VENTANA del juego (capa grafica).
-// Muestra la escena del Juego y le pasa las teclas.
+// Muestra la escena del Juego, le pasa las teclas y pone los sonidos.
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -26,6 +28,8 @@ protected:
     void keyPressEvent(QKeyEvent *evento) override;   // cuando se presiona una tecla
 
 private slots:
+    void sonarAcierto();
+    void sonarFallo();
     void cuandoTerminaNivel(int numeroNivel, int puntaje);
 
 private:
@@ -33,5 +37,13 @@ private:
     QGraphicsView *vista;   // el "lente" que muestra la escena
     Juego *juego;
     bool dificil;
+
+    // Sonidos: cada uno necesita un reproductor y una salida de audio
+    QMediaPlayer *musica;
+    QAudioOutput *salidaMusica;
+    QMediaPlayer *sonidoAcierto;
+    QAudioOutput *salidaAcierto;
+    QMediaPlayer *sonidoFallo;
+    QAudioOutput *salidaFallo;
 };
 #endif
