@@ -20,7 +20,7 @@ class Juego : public QObject
     Q_OBJECT
 
 public:
-    Juego(QObject *padre = nullptr);
+    Juego(QString imagenJugador, QObject *padre = nullptr);
 
     QGraphicsScene* getEscena();
 

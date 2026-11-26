@@ -3,6 +3,7 @@
 #include <QMessageBox>
 #include <stdexcept>
 #include <QUrl>
+#include "menuinicio.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -11,8 +12,14 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     setWindowTitle("Festival Vallenato");
 
-    // Creamos el juego y una vista para verlo
-    juego = new Juego(this);
+    // MENU DE INICIO: escoger personaje y dificultad.
+    // exec() muestra el menu y espera hasta que presionen JUGAR.
+    MenuInicio menu(this);
+    menu.exec();
+    dificil = menu.esDificil();
+
+    // Creamos el juego con el personaje escogido y una vista para verlo
+    juego = new Juego(menu.getImagenPersonaje(), this);
     vista = new QGraphicsView(juego->getEscena(), this);
     vista->setFocusPolicy(Qt::NoFocus);   // las teclas las recibe la ventana
     setCentralWidget(vista);
@@ -46,11 +53,6 @@ MainWindow::MainWindow(QWidget *parent)
     // Cuando el juego avise acierto o fallo, suena el sonido
     connect(juego, &Juego::acierto, this, &MainWindow::sonarAcierto);
     connect(juego, &Juego::fallo, this, &MainWindow::sonarFallo);
-
-    // Preguntamos la dificultad (cambia que tanto se mecen las notas)
-    QMessageBox::StandardButton respuesta = QMessageBox::question(
-        this, "Dificultad", "¿Quieres jugar en modo DIFICIL?\n(las notas se mecen mas)");
-    dificil = (respuesta == QMessageBox::Yes);
 
     juego->iniciarNivel(1, dificil);
 }

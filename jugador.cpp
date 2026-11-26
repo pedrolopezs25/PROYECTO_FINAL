@@ -4,7 +4,7 @@
 #include <QPixmap>
 #include <QPen>
 
-Jugador::Jugador(double x, double y)
+Jugador::Jugador(double x, double y, QString rutaImagen)
 {
     posX = x;
     posY = y;
@@ -18,7 +18,7 @@ Jugador::Jugador(double x, double y)
     setPos(posX, posY);
 
     // Imagen del personaje (si no la encuentra, queda el cuadro de color)
-    QPixmap imagen(":/imagenes/jugador.png");
+    QPixmap imagen(rutaImagen);   // la que escogio en el menu
     if (!imagen.isNull()) {
         imagen = imagen.scaled(90, 120, Qt::KeepAspectRatio, Qt::SmoothTransformation);
         new QGraphicsPixmapItem(imagen, this);   // hija: se mueve con el

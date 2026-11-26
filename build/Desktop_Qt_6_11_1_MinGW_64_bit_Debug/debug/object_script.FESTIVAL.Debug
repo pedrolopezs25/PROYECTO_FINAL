@@ -4,6 +4,7 @@ debug/juego.o
 debug/jugador.o
 debug/main.o
 debug/mainwindow.o
+debug/menuinicio.o
 debug/nota.o
 debug/objeto.o
 debug/rival.o
@@ -11,3 +12,4 @@ debug/qrc_imagenes.o
 debug/qrc_sonidos.o
 debug/moc_juego.o
 debug/moc_mainwindow.o
+debug/moc_menuinicio.o

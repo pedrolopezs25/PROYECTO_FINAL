@@ -1,7 +1,9 @@
 <RCC>
     <qresource prefix="/">
         <file>imagenes/fondo.png</file>
-        <file>imagenes/jugador.png</file>
+        <file>imagenes/personaje1.png</file>
+        <file>imagenes/personaje2.png</file>
+        <file>imagenes/personaje3.png</file>
         <file>imagenes/rival.png</file>
         <file>imagenes/nota_a.png</file>
         <file>imagenes/nota_s.png</file>

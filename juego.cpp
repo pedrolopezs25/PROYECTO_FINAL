@@ -7,7 +7,7 @@
 
 // ===================== PARTE 1: crear y empezar =====================
 
-Juego::Juego(QObject *padre) : QObject(padre)
+Juego::Juego(QString imagenJugador, QObject *padre) : QObject(padre)
 {
     // Escena de 800 x 600 con imagen de fondo
     escena = new QGraphicsScene(0, 0, 800, 600, this);
@@ -32,10 +32,10 @@ Juego::Juego(QObject *padre) : QObject(padre)
     escena->addItem(linea);
 
     // Personajes (se crean UNA vez con new = memoria dinamica)
-    jugador = new Jugador(370, 510);
+    jugador = new Jugador(355, 475, imagenJugador);
     escena->addItem(jugador);
 
-    rival = new Rival(370, 45);
+    rival = new Rival(355, 45);
     escena->addItem(rival);
 
     // Timer: cada 30 ms llama a actualizar()

@@ -2,6 +2,7 @@
 #define JUGADOR_H
 
 #include <QGraphicsRectItem>
+#include <QString>
 
 // El personaje que controla la persona (abajo de la pantalla).
 // Tiene 2 CARACTERISTICAS que cambian como se mueve:
@@ -10,7 +11,7 @@
 class Jugador : public QGraphicsRectItem
 {
 public:
-    Jugador(double x, double y);
+    Jugador(double x, double y, QString rutaImagen);   // la imagen la escoge el menu
 
     void moverIzquierda();
     void moverDerecha();

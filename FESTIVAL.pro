@@ -13,6 +13,7 @@ SOURCES += \
     jugador.cpp \
     main.cpp \
     mainwindow.cpp \
+    menuinicio.cpp \
     nota.cpp \
     objeto.cpp \
     rival.cpp
@@ -23,6 +24,7 @@ HEADERS += \
     juego.h \
     jugador.h \
     mainwindow.h \
+    menuinicio.h \
     nota.h \
     objeto.h \
     rival.h
