@@ -3,6 +3,8 @@
 
 #include <QGraphicsRectItem>
 #include <QString>
+#include <QPixmap>
+#include <QMap>
 
 // Clase PADRE de todo lo que se mueve en el juego.
 // Aqui va la FISICA BASICA: posicion y velocidad.
@@ -25,6 +27,12 @@ protected:
     double posY;   // posicion vertical
     double velX;   // velocidad horizontal
     double velY;   // velocidad vertical
+
+private:
+    // CACHE DE IMAGENES (eficiencia):
+    // guarda las imagenes que ya se cargaron, para no leer el archivo cada vez.
+    // "static" = hay UNA sola cache para toda la clase, compartida por todos los objetos.
+    static QMap<QString, QPixmap> imagenesCargadas;
 };
 
 #endif

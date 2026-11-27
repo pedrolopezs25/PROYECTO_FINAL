@@ -13,6 +13,12 @@ MenuInicio::MenuInicio(QWidget *parent) : QDialog(parent)
     titulo->setFont(QFont("Arial", 20, QFont::Bold));
     titulo->setAlignment(Qt::AlignCenter);
 
+    // Cajita para escribir el nombre (para la tabla de puntajes)
+    QLabel *textoNombre = new QLabel("Tu nombre:", this);
+    campoNombre = new QLineEdit(this);
+    campoNombre->setPlaceholderText("Escribe tu nombre");
+    campoNombre->setMaxLength(15);   // que no sea muy largo
+
     // Lista para escoger personaje (el texto se puede cambiar)
     QLabel *textoPersonaje = new QLabel("Escoge tu personaje:", this);
     comboPersonaje = new QComboBox(this);
@@ -36,13 +42,27 @@ MenuInicio::MenuInicio(QWidget *parent) : QDialog(parent)
     // Acomodamos todo en una columna (de arriba hacia abajo)
     QVBoxLayout *columna = new QVBoxLayout(this);
     columna->addWidget(titulo);
+    columna->addWidget(textoNombre);
+    columna->addWidget(campoNombre);
     columna->addWidget(textoPersonaje);
     columna->addWidget(comboPersonaje);
     columna->addWidget(textoDificultad);
     columna->addWidget(comboDificultad);
     columna->addWidget(botonJugar);
 
-    setFixedSize(350, 280);
+    setFixedSize(350, 340);
+}
+
+QString MenuInicio::getNombre()
+{
+    // trimmed() quita los espacios de los lados
+    QString nombre = campoNombre->text().trimmed();
+
+    // Si no escribio nada, le ponemos un nombre por defecto
+    if (nombre.isEmpty()) {
+        nombre = "Jugador";
+    }
+    return nombre;
 }
 
 QString MenuInicio::getImagenPersonaje()

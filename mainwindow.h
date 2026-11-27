@@ -7,6 +7,7 @@
 #include <QMediaPlayer>
 #include <QAudioOutput>
 #include "juego.h"
+#include "tablapuntajes.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -33,10 +34,15 @@ private slots:
     void cuandoTerminaNivel(int numeroNivel, int puntaje);
 
 private:
+    void nuevaPartida();     // muestra el menu y arranca un juego nuevo
+    void mostrarTabla(int puntaje);   // tabla al final + jugar otra vez o salir
+
     Ui::MainWindow *ui;
     QGraphicsView *vista;   // el "lente" que muestra la escena
     Juego *juego;
     bool dificil;
+    QString nombreJugador;   // el que esta jugando ahora
+    TablaPuntajes tabla;     // dura mientras el programa este abierto
 
     // Sonidos: cada uno necesita un reproductor y una salida de audio
     QMediaPlayer *musica;

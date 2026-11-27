@@ -11,6 +11,11 @@ Juego::Juego(QString imagenJugador, QObject *padre) : QObject(padre)
 {
     // Escena de 800 x 600 con imagen de fondo
     escena = new QGraphicsScene(0, 0, 800, 600, this);
+
+    // EFICIENCIA: como casi todo se mueve en cada tick, le decimos a Qt
+    // que no arme un indice de posiciones (se tendria que rehacer cada 30 ms)
+    escena->setItemIndexMethod(QGraphicsScene::NoIndex);
+
     QPixmap fondo(":/imagenes/fondo.png");
     if (fondo.isNull()) {
         escena->setBackgroundBrush(QBrush(QColor(40, 20, 60)));   // color si no hay imagen
@@ -217,7 +222,13 @@ void Juego::revisarInstrumentos()
 {
     for (int i = instrumentos.size() - 1; i >= 0; i--) {
         Instrumento *instrumento = instrumentos[i];
-        bool atrapado = jugador->collidesWithItem(instrumento);
+
+        // EFICIENCIA: solo revisamos el choque si ya bajo cerca del jugador
+        // (revisar choques es costoso; arriba de 400 es imposible que choque)
+        bool atrapado = false;
+        if (instrumento->y() > 400) {
+            atrapado = jugador->collidesWithItem(instrumento);
+        }
         bool perdido = instrumento->salioDePantalla(600);
 
         if (atrapado || perdido) {
@@ -245,7 +256,12 @@ void Juego::revisarArepas()
 {
     for (int i = arepas.size() - 1; i >= 0; i--) {
         Arepa *arepa = arepas[i];
-        bool atrapada = jugador->collidesWithItem(arepa);
+
+        // EFICIENCIA: igual que con los instrumentos
+        bool atrapada = false;
+        if (arepa->y() > 400) {
+            atrapada = jugador->collidesWithItem(arepa);
+        }
 
         if (atrapada) {
             jugador->comerArepa();              // se vuelve mas rapido
@@ -272,7 +288,11 @@ void Juego::actualizarTexto()
     } else {
         mensaje = mensaje + "    Lanzados: " + QString::number(lanzados) + "/15";
     }
-    texto->setPlainText(mensaje);
+    // EFICIENCIA: solo redibujamos el texto si cambio.
+    // (actualizar() se llama 33 veces por segundo, pero el texto casi nunca cambia)
+    if (mensaje != texto->toPlainText()) {
+        texto->setPlainText(mensaje);
+    }
 }
 
 void Juego::terminarNivel()
