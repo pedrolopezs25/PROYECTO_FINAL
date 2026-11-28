@@ -16,6 +16,7 @@ SOURCES += \
     menuinicio.cpp \
     nota.cpp \
     objeto.cpp \
+    personaje.cpp \
     rival.cpp \
     tablapuntajes.cpp \
     trampa.cpp
@@ -29,6 +30,7 @@ HEADERS += \
     menuinicio.h \
     nota.h \
     objeto.h \
+    personaje.h \
     rival.h \
     tablapuntajes.h \
     trampa.h

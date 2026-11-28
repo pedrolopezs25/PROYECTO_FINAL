@@ -1,7 +1,10 @@
 #include "objeto.h"
 #include <QGraphicsPixmapItem>
-#include <QPixmap>
 #include <QPen>
+#include <stdexcept>
+
+// La cache empieza vacia
+QHash<QString, QPixmap> Objeto::imagenesCargadas;
 
 Objeto::Objeto(double x, double y, double ancho, double alto)
 {
@@ -22,38 +25,45 @@ void Objeto::mover()
     setPos(posX, posY);
 }
 
-bool Objeto::salioDePantalla(double altoPantalla)
+bool Objeto::salioDePantalla(double altoPantalla) const
 {
     // true si ya paso el borde de abajo
     return posY > altoPantalla;
 }
 
-// La cache empieza vacia
-QMap<QString, QPixmap> Objeto::imagenesCargadas;
-
-void Objeto::ponerImagen(QString ruta)
+QString Objeto::armarClave(const QString &ruta, int ancho, int alto)
 {
-    // Clave = ruta + tamano (guardamos la imagen ya ajustada a ese tamano)
-    QString clave = ruta + " " + QString::number(rect().width())
-                    + "x" + QString::number(rect().height());
+    // Ejemplo: ":/imagenes/caja.png 55x55"
+    return ruta + " " + QString::number(ancho) + "x" + QString::number(alto);
+}
 
-    // EFICIENCIA: solo la primera vez se lee el archivo y se ajusta.
-    // Las siguientes veces se reutiliza la que ya esta en la cache.
+void Objeto::precargarImagen(const QString &ruta, int ancho, int alto)
+{
+    QPixmap imagen(ruta);
+
+    // EXCEPCION: si la imagen no carga, avisamos con un error claro
+    if (imagen.isNull()) {
+        throw std::runtime_error(("No se pudo cargar la imagen: " + ruta).toStdString());
+    }
+
+    // Se ajusta al tamano UNA sola vez y se guarda en la cache
+    imagen = imagen.scaled(ancho, alto, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    imagenesCargadas.insert(armarClave(ruta, ancho, alto), imagen);
+}
+
+void Objeto::ponerImagen(const QString &ruta)
+{
+    QString clave = armarClave(ruta, rect().width(), rect().height());
+
+    // EFICIENCIA: la imagen ya esta en la cache (se precargo al abrir el juego),
+    // asi que crear una nota o un instrumento NO lee ningun archivo.
+    // Si por alguna razon no esta, se queda el cuadro de color.
     if (!imagenesCargadas.contains(clave)) {
-        QPixmap imagen(ruta);
-
-        // Si no encuentra la imagen, se queda el cuadro de color
-        if (imagen.isNull()) {
-            return;
-        }
-
-        imagen = imagen.scaled(rect().width(), rect().height(),
-                               Qt::KeepAspectRatio, Qt::SmoothTransformation);
-        imagenesCargadas[clave] = imagen;   // la guardamos para la proxima
+        return;
     }
 
     // La imagen es "hija" del objeto: se mueve junto con el
-    new QGraphicsPixmapItem(imagenesCargadas[clave], this);
+    new QGraphicsPixmapItem(imagenesCargadas.value(clave), this);
 
     // Escondemos el cuadro de color
     setPen(Qt::NoPen);

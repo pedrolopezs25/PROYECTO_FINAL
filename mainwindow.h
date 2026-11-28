@@ -36,7 +36,10 @@ private slots:
     void cuandoTerminaNivel(int numeroNivel, int puntaje);
 
 private:
+    void ponerEstilo();        // decora TODOS los cuadros de aviso del juego
+    void verificarRecursos();  // revisa imagenes y sonidos: lanza EXCEPCION si falta alguno
     void nuevaPartida();     // muestra el menu y arranca un juego nuevo
+    void empezarNivel(int numeroNivel);   // arranca un nivel atrapando sus excepciones
     void mostrarTabla(int puntaje);   // tabla al final + jugar otra vez o salir
     void reiniciarMusica();  // vuelve a poner la cancion desde el principio
 
@@ -46,7 +49,7 @@ private:
     bool dificil;
     int duracion;            // segundos de cada ronda (lo escoge el menu)
     QString nombreJugador;   // el que esta jugando ahora
-    TablaPuntajes tabla;     // dura mientras el programa este abierto
+    TablaPuntajes tabla;     // se carga y se guarda en puntajes.txt
 
     // Sonidos: cada uno necesita un reproductor y una salida de audio
     QMediaPlayer *musica;

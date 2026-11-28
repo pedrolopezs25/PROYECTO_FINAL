@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QGraphicsScene>
 #include <QGraphicsTextItem>
+#include <QGraphicsSimpleTextItem>
 #include <QTimer>
 #include <QList>
 #include "jugador.h"
@@ -21,11 +22,16 @@ class Juego : public QObject
     Q_OBJECT
 
 public:
-    Juego(QString imagenJugador, QObject *padre = nullptr);
+    Juego(const QString &imagenJugador, QObject *padre = nullptr);
+
+    // Carga TODAS las imagenes de los objetos UNA vez, antes de jugar.
+    // Lanza una EXCEPCION si falta alguna. Se llama al abrir el programa.
+    static void precargarImagenes();
 
     QGraphicsScene* getEscena();
 
-    // Empieza un nivel que dura "segundos". Lanza una EXCEPCION si el nivel no existe.
+    // Empieza un nivel que dura "segundos".
+    // Lanza una EXCEPCION si el nivel no existe o si la duracion no es valida.
     void iniciarNivel(int numeroNivel, bool modoDificil, int segundos);
 
     // La ventana nos avisa que tecla presiono o solto la persona
@@ -62,6 +68,7 @@ private:
     // Generales
     void actualizarTexto();
     void actualizarReloj();
+    void actualizarCuentaRegresiva();   // 3, 2, 1, ¡YA! antes de empezar
     void terminarNivel();
     void borrarTodo();
 
@@ -70,6 +77,7 @@ private:
     QGraphicsTextItem *texto;      // puntos y fallos en pantalla
     QGraphicsTextItem *reloj;      // cuenta regresiva grande (arriba a la derecha)
     QGraphicsRectItem *linea;      // linea donde hay que atinarle a las notas
+    QGraphicsSimpleTextItem *aviso;   // numero grande de la cuenta regresiva
 
     Jugador *jugador;
     Rival *rival;
@@ -81,10 +89,15 @@ private:
 
     int nivel;
     bool dificil;
-    int puntosPorAcierto;  // 10 en facil, 20 en dificil
+    int multiplicador;     // 1 en facil, 2 en dificil (los puntos valen el doble)
+    int intervaloLanzar;   // cada cuantos ticks lanza el rival (dificil = mas seguido)
+    int maxTrampas;        // facil 2, dificil 3
+    int segundosTrampa;    // cuanto dura cada trampa: facil 5, dificil 7
     int contador;          // cuantas veces se ha llamado actualizar()
     int tiempoRestante;    // en segundos
     int lanzados;          // instrumentos lanzados (nivel 2)
+    int ticksCuenta;       // ticks que le faltan a la cuenta regresiva (0 = ya se juega)
+    int ticksYa;           // ticks que se ve el "¡YA!" despues de la cuenta
 };
 
 #endif

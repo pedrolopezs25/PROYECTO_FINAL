@@ -1,13 +1,15 @@
 #include "jugador.h"
-#include <QBrush>
-#include <QPen>
 #include <QTransform>
 #include <cmath>
 
-Jugador::Jugador(double x, double y, QString rutaImagen)
+// Duracion de la celebracion: 10 ticks = 0.3 segundos
+const int DURACION_CELEBRACION = 10;
+const double PI = 3.14159265;
+
+Jugador::Jugador(double x, double y, const QString &rutaImagen)
+    : Personaje(x, y, rutaImagen, QString(rutaImagen).replace(".png", "_lado.png"))
+// la imagen de lado tiene el mismo nombre con "_lado": personaje1_lado.png
 {
-    posX = x;
-    posY = y;
     velocidad = 7;      // 7 pixeles por tick = unos 230 pixeles por segundo
     carga = 0;
     puntaje = 0;
@@ -15,47 +17,15 @@ Jugador::Jugador(double x, double y, QString rutaImagen)
 
     izquierda = false;
     derecha = false;
+    direccion = 1;
+    paso = 0;
+
     altura = 0;
     velSalto = 0;
     gravedad = 0.8;
+
     ticksCongelado = 0;
-
-    setRect(0, 0, 90, 120);             // tamano del personaje
-    setBrush(QBrush(Qt::blue));
-    setPos(posX, posY);
-    setTransformOriginPoint(45, 120);   // si se inclina, gira desde los pies
-
-    // ----- Cargamos las poses UNA sola vez (eficiencia) -----
-    // De frente: la imagen que escogio en el menu (personaje1.png...)
-    poseFrente = QPixmap(rutaImagen);
-
-    // De lado: el mismo nombre con "_lado" (personaje1_lado.png...)
-    QString rutaLado = rutaImagen;
-    rutaLado.replace(".png", "_lado.png");
-    poseDerecha = QPixmap(rutaLado);
-    tieneLado = !poseDerecha.isNull();
-
-    if (tieneLado) {
-        poseDerecha = poseDerecha.scaled(90, 120, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-        // Para la izquierda NO hace falta otra imagen: volteamos la de la derecha.
-        // scale(-1, 1) = espejo horizontal
-        poseIzquierda = poseDerecha.transformed(QTransform().scale(-1, 1));
-    }
-
-    imagen = nullptr;
-    poseActual = 0;
-    if (!poseFrente.isNull()) {
-        poseFrente = poseFrente.scaled(90, 120, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-        imagen = new QGraphicsPixmapItem(this);   // hija: se mueve con el
-        imagen->setTransformationMode(Qt::SmoothTransformation);
-        poseActual = -1;                          // para que cambiarPose la ponga
-        cambiarPose(0);
-        setPen(Qt::NoPen);
-        setBrush(Qt::NoBrush);
-    }
-
-    direccion = 1;
-    paso = 0;
+    ticksCelebrando = 0;
 }
 
 // ===================== Controles =====================
@@ -78,15 +48,25 @@ void Jugador::saltar()
     }
 }
 
+void Jugador::celebrar()
+{
+    ticksCelebrando = DURACION_CELEBRACION;
+}
+
 void Jugador::congelar(int ticks)
 {
     ticksCongelado = ticks;
     setOpacity(0.5);   // se ve medio transparente mientras esta congelado
 }
 
-bool Jugador::estaCongelado()
+bool Jugador::estaCongelado() const
 {
     return ticksCongelado > 0;
+}
+
+bool Jugador::estaEnElPiso() const
+{
+    return altura == 0;
 }
 
 // ===================== Cada tick =====================
@@ -110,12 +90,12 @@ void Jugador::actualizar()
             posX = posX + velocidad;
             direccion = 1;
         }
-        // No se sale de la pantalla (800 de ancho - 90 del jugador)
+        // No se sale de la pantalla (800 de ancho - lo que mide el jugador)
         if (posX < 0) {
             posX = 0;
         }
-        if (posX > 710) {
-            posX = 710;
+        if (posX > 800 - ANCHO) {
+            posX = 800 - ANCHO;
         }
     }
 
@@ -139,16 +119,7 @@ void Jugador::animar()
     double rebote = 0;
 
     if (caminando || altura > 0) {
-        // Mira hacia donde va
-        if (tieneLado) {
-            if (direccion == 1) {
-                cambiarPose(1);
-            } else {
-                cambiarPose(2);
-            }
-        } else {
-            setRotation(direccion * 10);   // sin imagen de lado: se inclina
-        }
+        mirar(direccion);   // mira hacia donde va (funcion del padre)
 
         // Rebote de los pasos (solo si esta en el piso)
         if (caminando && altura == 0) {
@@ -156,55 +127,50 @@ void Jugador::animar()
             rebote = std::abs(std::sin(paso * 0.5)) * 6;
         }
     }
-    else if (paso != 0 || poseActual != 0) {
-        // SE ACABA DE QUEDAR QUIETO: vuelve de frente y derechito.
-        // EFICIENCIA: esto se hace UNA sola vez, no en cada tick.
+    else {
+        // QUIETO: vuelve de frente.
+        // EFICIENCIA: si ya estaba de frente, cambiarPose no hace nada.
         paso = 0;
-        setRotation(0);
-        cambiarPose(0);
+        mirar(0);
     }
 
-    setPos(posX, posY - altura - rebote);
-}
+    // CELEBRACION: se ensancha y da un brinquito, y vuelve a la normalidad.
+    // "fase" va de 0 a 1 y sin(pi * fase) sube y baja como una montanita.
+    double brinco = 0;
+    if (ticksCelebrando > 0) {
+        ticksCelebrando = ticksCelebrando - 1;
+        double fase = 1.0 - (double)ticksCelebrando / DURACION_CELEBRACION;
+        double montanita = std::sin(PI * fase);
+        brinco = montanita * 12;                      // sube hasta 12 pixeles
 
-void Jugador::cambiarPose(int nuevaPose)
-{
-    // EFICIENCIA: si ya tiene esa pose, no hacemos nada
-    if (imagen == nullptr || nuevaPose == poseActual) {
-        return;
+        // Se ensancha un 20% y se aplasta un poquito, estirando desde los pies
+        QTransform estirar;
+        estirar.translate(ANCHO / 2, ALTO);
+        estirar.scale(1 + 0.2 * montanita, 1 - 0.1 * montanita);
+        estirar.translate(-ANCHO / 2, -ALTO);
+        setTransform(estirar);
+
+        if (ticksCelebrando == 0) {
+            setTransform(QTransform());   // vuelve a su tamano normal
+        }
     }
-    poseActual = nuevaPose;
 
-    if (nuevaPose == 1) {
-        imagen->setPixmap(poseDerecha);
-    } else if (nuevaPose == 2) {
-        imagen->setPixmap(poseIzquierda);
-    } else {
-        imagen->setPixmap(poseFrente);
-    }
-
-    // Centramos la imagen y la ponemos con los pies abajo
-    double ancho = imagen->pixmap().width();
-    double alto = imagen->pixmap().height();
-    imagen->setPos((90 - ancho) / 2, 120 - alto);
+    setPos(posX, posY - altura - rebote - brinco);
 }
 
 // ===================== Caracteristicas y puntos =====================
 
 void Jugador::comerArepa()
 {
-    // Caracteristica 1: la arepa le da energia, se mueve mas rapido
-    velocidad = velocidad + 2;
-    if (velocidad > 13) {
-        velocidad = 13;             // limite para que no sea exagerado
-    }
+    // Caracteristica 1: la arepa le da energia, se mueve mas rapido (sin limite)
+    velocidad = velocidad + 4;
 }
 
-void Jugador::cargarInstrumento()
+void Jugador::cargarInstrumento(double peso)
 {
-    // Caracteristica 2: entre mas carga, mas lento
+    // Caracteristica 2: entre mas carga (y mas pesado), mas lento
     carga = carga + 1;
-    velocidad = velocidad - 0.5;
+    velocidad = velocidad - peso;
     if (velocidad < 3) {
         velocidad = 3;              // nunca se queda quieto del todo
     }
@@ -220,17 +186,12 @@ void Jugador::sumarFallo()
     fallos = fallos + 1;
 }
 
-int Jugador::getPuntaje()
+int Jugador::getPuntaje() const
 {
     return puntaje;
 }
 
-int Jugador::getFallos()
+int Jugador::getFallos() const
 {
     return fallos;
-}
-
-double Jugador::getX()
-{
-    return posX;
 }

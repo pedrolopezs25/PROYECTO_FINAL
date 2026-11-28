@@ -6,10 +6,11 @@
 #include <stdexcept>
 #include <cstdlib>
 #include <cmath>
+#include <string>
 
 // ===================== PARTE 1: crear y empezar =====================
 
-Juego::Juego(QString imagenJugador, QObject *padre) : QObject(padre)
+Juego::Juego(const QString &imagenJugador, QObject *padre) : QObject(padre)
 {
     // Escena de 800 x 600 con imagen de fondo
     escena = new QGraphicsScene(0, 0, 800, 600, this);
@@ -25,10 +26,17 @@ Juego::Juego(QString imagenJugador, QObject *padre) : QObject(padre)
         escena->setBackgroundBrush(QBrush(fondo.scaled(800, 600)));
     }
 
+    // Franja oscura medio transparente arriba, para que el texto se lea
+    // aunque detras haya nubes blancas. QColor(0, 0, 0, 120): el 120 es la transparencia.
+    QGraphicsRectItem *franja = new QGraphicsRectItem(0, 0, 800, 48);
+    franja->setBrush(QBrush(QColor(0, 0, 0, 120)));
+    franja->setPen(Qt::NoPen);
+    escena->addItem(franja);
+
     // Texto de arriba (puntos y tiempo)
     texto = new QGraphicsTextItem();
     texto->setDefaultTextColor(Qt::white);
-    texto->setFont(QFont("Arial", 14));
+    texto->setFont(QFont("Arial", 14, QFont::Bold));
     texto->setPos(10, 10);
     escena->addItem(texto);
 
@@ -47,11 +55,21 @@ Juego::Juego(QString imagenJugador, QObject *padre) : QObject(padre)
     linea->setPos(0, 475);                           // centrada en el mismo lugar (480)
     escena->addItem(linea);
 
+    // Numero GRANDE de la cuenta regresiva: dorado con borde negro, en el centro
+    aviso = new QGraphicsSimpleTextItem();
+    aviso->setFont(QFont("Arial", 110, QFont::Black));
+    aviso->setBrush(QBrush(QColor(255, 210, 0)));   // relleno dorado
+    aviso->setPen(QPen(Qt::black, 4));               // borde negro
+    aviso->setZValue(10);                            // por encima de todo
+    aviso->setVisible(false);
+    escena->addItem(aviso);
+
     // Personajes (se crean UNA vez con new = memoria dinamica)
-    jugador = new Jugador(355, 475, imagenJugador);
+    // Parados en el piso de la linea: 595 - alto del personaje
+    jugador = new Jugador(350, 595 - Personaje::ALTO, imagenJugador);
     escena->addItem(jugador);
 
-    rival = new Rival(355, 45);
+    rival = new Rival(350, 52);   // debajo de la franja del texto
     escena->addItem(rival);
 
     // Timer: cada 30 ms llama a actualizar()
@@ -61,10 +79,33 @@ Juego::Juego(QString imagenJugador, QObject *padre) : QObject(padre)
 
     nivel = 0;
     dificil = false;
-    puntosPorAcierto = 10;
+    multiplicador = 1;
+    intervaloLanzar = 66;
+    maxTrampas = 2;
+    segundosTrampa = 5;
     contador = 0;
     tiempoRestante = 0;
     lanzados = 0;
+    ticksCuenta = 0;
+    ticksYa = 0;
+}
+
+void Juego::precargarImagenes()
+{
+    // Cada imagen con el MISMO tamano con el que la usa su clase.
+    // Si falta alguna, precargarImagen lanza la excepcion y el juego no arranca.
+    Objeto::precargarImagen(":/imagenes/nota_a.png", 30, 30);
+    Objeto::precargarImagen(":/imagenes/nota_s.png", 30, 30);
+    Objeto::precargarImagen(":/imagenes/nota_d.png", 30, 30);
+    Objeto::precargarImagen(":/imagenes/nota_f.png", 30, 30);
+
+    int lado = Instrumento::TAMANO;
+    Objeto::precargarImagen(":/imagenes/guacharaca.png", lado, lado);
+    Objeto::precargarImagen(":/imagenes/caja.png", lado, lado);
+    Objeto::precargarImagen(":/imagenes/acordeon.png", lado, lado);
+
+    Objeto::precargarImagen(":/imagenes/arepa.png", 30, 20);
+    Objeto::precargarImagen(":/imagenes/trampa.png", 50, 25);
 }
 
 QGraphicsScene* Juego::getEscena()
@@ -79,30 +120,54 @@ void Juego::iniciarNivel(int numeroNivel, bool modoDificil, int segundos)
         throw std::invalid_argument("Ese nivel no existe. Solo hay nivel 1 y 2.");
     }
 
+    // EXCEPCION: la ronda tiene que durar entre 10 segundos y 2 minutos
+    if (segundos < 10 || segundos > 120) {
+        throw std::invalid_argument("La duracion de la ronda no es valida: "
+                                    + std::to_string(segundos) + " segundos.");
+    }
+
     nivel = numeroNivel;
     dificil = modoDificil;
     contador = 0;
     tiempoRestante = segundos;   // lo escogio en el menu (30, 45 o 60)
     lanzados = 0;
 
-    // DIFICULTAD: en dificil cada acierto vale el doble
+    // DIFICULTAD: en dificil los puntos valen el doble, el rival lanza
+    // mas seguido y hay mas trampas (que duran mas)
     if (dificil) {
-        puntosPorAcierto = 20;
+        multiplicador = 2;
+        intervaloLanzar = 50;   // cada 1.5 segundos
+        maxTrampas = 3;
+        segundosTrampa = 7;
     } else {
-        puntosPorAcierto = 10;
+        multiplicador = 1;
+        intervaloLanzar = 66;   // cada 2 segundos
+        maxTrampas = 2;
+        segundosTrampa = 5;     // desaparecen cada 5 segundos
     }
 
     // En el nivel 1 se ve la linea; en el nivel 2 se ve el rival
     linea->setVisible(nivel == 1);
     rival->setVisible(nivel == 2);
 
+    // CUENTA REGRESIVA: 3 segundos (3, 2, 1) antes de que empiece de verdad
+    ticksCuenta = 3 * 33;
+    ticksYa = 0;
+    aviso->setText("");   // para que actualizarCuentaRegresiva ponga el "3"
+
     actualizarTexto();
     actualizarReloj();
+    actualizarCuentaRegresiva();
     timer->start(30);
 }
 
 void Juego::teclaPresionada(int tecla)
 {
+    // Durante la cuenta regresiva todavia no se juega
+    if (ticksCuenta > 0) {
+        return;
+    }
+
     if (nivel == 1) {
         revisarTecla(tecla);
     }
@@ -146,6 +211,21 @@ void Juego::teclaSoltada(int tecla)
 
 void Juego::actualizar()
 {
+    // 1) CUENTA REGRESIVA: mientras dure, no pasa nada mas (ni el reloj baja)
+    if (ticksCuenta > 0) {
+        ticksCuenta = ticksCuenta - 1;
+        actualizarCuentaRegresiva();
+        return;
+    }
+
+    // El "¡YA!" se ve un ratico ya jugando y luego se esconde
+    if (ticksYa > 0) {
+        ticksYa = ticksYa - 1;
+        if (ticksYa == 0) {
+            aviso->setVisible(false);
+        }
+    }
+
     contador = contador + 1;
 
     // Cada segundo (33 x 30 ms) baja el reloj
@@ -155,6 +235,8 @@ void Juego::actualizar()
     }
 
     if (nivel == 1) {
+        jugador->actualizar();   // para que se vea la celebracion
+
         // Cada segundo sale una nota
         if (contador % 33 == 0) {
             crearNota();
@@ -170,19 +252,20 @@ void Juego::actualizar()
         }
     }
     else {
-        // El jugador se mueve, salta y se anima
+        // El jugador se mueve, salta y se anima; el rival vuelve a mirar de frente
         jugador->actualizar();
+        rival->actualizar();
 
-        // Cada 2 segundos el rival lanza un instrumento
-        if (contador % 66 == 0) {
+        // El rival lanza un instrumento (facil cada 2 s, dificil cada 1.5 s)
+        if (contador % intervaloLanzar == 0) {
             lanzarInstrumento();
         }
         // Cada 6 segundos cae una arepa
         if (contador % 200 == 0) {
             crearArepa();
         }
-        // Cada 4 segundos aparece una trampa (maximo 2 a la vez)
-        if (contador % 132 == 0 && trampas.size() < 2) {
+        // Cada 4 segundos aparece una trampa (facil maximo 2, dificil maximo 3)
+        if (contador % 132 == 0 && trampas.size() < maxTrampas) {
             crearTrampa();
         }
         for (int i = 0; i < instrumentos.size(); i++) {
@@ -213,7 +296,8 @@ void Juego::actualizar()
 void Juego::crearNota()
 {
     // 4 carriles, uno por tecla: A, S, D, F
-    int teclas[4] = { Qt::Key_A, Qt::Key_S, Qt::Key_D, Qt::Key_F };
+    // EFICIENCIA: "static const" = el arreglo se crea UNA vez, no en cada nota
+    static const int teclas[4] = { Qt::Key_A, Qt::Key_S, Qt::Key_D, Qt::Key_F };
     int carril = std::rand() % 4;
     bool seMece = (std::rand() % 2 == 0);    // la mitad se mecen
 
@@ -230,14 +314,22 @@ void Juego::crearNota()
 
 void Juego::revisarTecla(int tecla)
 {
-    // Buscamos una nota de esa tecla que este cerca de la linea
+    // UN SOLO INTENTO POR NOTA:
+    // tomamos la nota que esta en la zona de la linea (la mas vieja = la mas abajo).
+    // Si la tecla es la correcta: acierto. Si no: fallo y la nota DESAPARECE igual.
     for (int i = 0; i < notas.size(); i++) {
         Nota *nota = notas[i];
         bool cerca = nota->y() > 430 && nota->y() < 520;
 
-        if (nota->getTecla() == tecla && cerca) {
-            jugador->sumarPuntos(puntosPorAcierto);
-            emit acierto();
+        if (cerca) {
+            if (nota->getTecla() == tecla) {
+                jugador->sumarPuntos(10 * multiplicador);
+                jugador->celebrar();    // se estira y da un brinquito
+                emit acierto();
+            } else {
+                jugador->sumarFallo();  // se equivoco de tecla: perdio esta nota
+                emit fallo();
+            }
 
             escena->removeItem(nota);
             delete nota;                // liberamos la memoria
@@ -245,7 +337,7 @@ void Juego::revisarTecla(int tecla)
             return;
         }
     }
-    // Si no encontro ninguna, la persona fallo
+    // No habia ninguna nota en la linea: tambien es fallo
     jugador->sumarFallo();
     emit fallo();
 }
@@ -269,7 +361,7 @@ void Juego::revisarNotasPerdidas()
 
 void Juego::lanzarInstrumento()
 {
-    Instrumento *instrumento = rival->actuar();   // el agente decide y lanza
+    Instrumento *instrumento = rival->actuar(dificil);   // el agente decide y lanza
     instrumentos.append(instrumento);
     escena->addItem(instrumento);
     lanzados = lanzados + 1;
@@ -290,7 +382,7 @@ void Juego::crearTrampa()
     while (std::abs(x - jugador->getX()) < 150) {
         x = std::rand() % 750;
     }
-    Trampa *trampa = new Trampa(x, 575);   // 575 + 25 de alto = piso (600)
+    Trampa *trampa = new Trampa(x, 575, segundosTrampa);   // 575 + 25 de alto = piso (600)
     trampas.append(trampa);
     escena->addItem(trampa);
 }
@@ -310,8 +402,10 @@ void Juego::revisarInstrumentos()
 
         if (atrapado || perdido) {
             if (atrapado) {
-                jugador->sumarPuntos(puntosPorAcierto);
-                jugador->cargarInstrumento();   // pesa: se vuelve mas lento
+                // Cada instrumento vale distinto (x2 en dificil)
+                jugador->sumarPuntos(instrumento->getPuntos() * multiplicador);
+                jugador->cargarInstrumento(instrumento->getPeso());   // mas pesado = mas lento
+                jugador->celebrar();
                 emit acierto();
             } else {
                 jugador->sumarFallo();
@@ -357,12 +451,12 @@ void Juego::revisarTrampas()
     for (int i = trampas.size() - 1; i >= 0; i--) {
         Trampa *trampa = trampas[i];
 
-        // EFICIENCIA: primero una resta (barata). Solo si estan cerca
-        // revisamos el choque de verdad (collidesWithItem es mas costoso).
-        bool cerca = std::abs(trampa->x() - jugador->getX()) < 100;
-
-        // Si la pisa (y no estaba ya congelado): se congela y la trampa desaparece
-        bool pisada = cerca && !jugador->estaCongelado() && jugador->collidesWithItem(trampa);
+        // Solo cuenta si de verdad la PISA: tiene que estar en el piso (no saltando)
+        // y el CENTRO de sus pies tiene que quedar encima de la trampa.
+        // EFICIENCIA: son comparaciones simples, no hace falta collidesWithItem.
+        double xPies = jugador->getX() + Personaje::ANCHO / 2;
+        bool pisada = jugador->estaEnElPiso() && !jugador->estaCongelado()
+                      && trampa->laPisa(xPies);
         if (pisada) {
             jugador->congelar(trampa->getCongelamiento());
             emit fallo();
@@ -414,9 +508,34 @@ void Juego::actualizarReloj()
     }
 }
 
+void Juego::actualizarCuentaRegresiva()
+{
+    // Que numero toca: 99..67 ticks = "3", 66..34 = "2", 33..1 = "1", 0 = "¡YA!"
+    QString numero;
+    if (ticksCuenta > 0) {
+        numero = QString::number((ticksCuenta + 32) / 33);
+    } else {
+        numero = "¡YA!";
+        ticksYa = 20;   // el "¡YA!" se ve 0.6 segundos
+    }
+
+    // EFICIENCIA: solo cambiamos el texto cuando cambia el numero
+    // (no 33 veces por segundo)
+    if (numero == aviso->text()) {
+        return;
+    }
+    aviso->setText(numero);
+    aviso->setVisible(true);
+
+    // Lo centramos en la pantalla segun lo que mide el texto
+    QRectF medida = aviso->boundingRect();
+    aviso->setPos(400 - medida.width() / 2, 300 - medida.height() / 2);
+}
+
 void Juego::terminarNivel()
 {
     timer->stop();
+    aviso->setVisible(false);
     borrarTodo();
     emit nivelTerminado(nivel, jugador->getPuntaje());
 }

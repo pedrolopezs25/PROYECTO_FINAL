@@ -9,11 +9,15 @@
 class Trampa : public Objeto
 {
 public:
-    Trampa(double x, double y);
+    Trampa(double x, double y, int segundos);   // segundos que dura en pantalla
 
     void mover() override;   // no se mueve: solo cuenta su tiempo y parpadea
     bool seAcabo();          // true cuando ya duro todo su tiempo
     int getCongelamiento();  // cuantos ticks congela al jugador
+
+    // true solo si el CENTRO de los pies esta encima de la trampa
+    // (asi no te coge con solo acercarte)
+    bool laPisa(double xPies) const;
 
 private:
     int vida;            // ticks que le quedan en pantalla
