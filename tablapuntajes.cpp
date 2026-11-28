@@ -5,10 +5,12 @@ TablaPuntajes::TablaPuntajes()
     maximo = 10;   // solo guardamos el TOP 10
 }
 
-int TablaPuntajes::agregar(QString nombre, int puntaje)
+int TablaPuntajes::agregar(QString nombre, QString dificultad, int segundos, int puntaje)
 {
     Registro nuevo;
     nuevo.nombre = nombre;
+    nuevo.dificultad = dificultad;
+    nuevo.segundos = segundos;
     nuevo.puntaje = puntaje;
 
     // EFICIENCIA: como la lista ya esta ordenada, no hay que ordenarla toda.
@@ -37,7 +39,7 @@ QString TablaPuntajes::comoTexto(int puestoResaltado)
 {
     // Usamos una tabla HTML: QMessageBox sabe mostrarla
     QString texto = "<table border='1' cellpadding='4'>";
-    texto = texto + "<tr><th>Puesto</th><th>Nombre</th><th>Puntos</th></tr>";
+    texto = texto + "<tr><th>Puesto</th><th>Nombre</th><th>Dificultad</th><th>Tiempo</th><th>Puntos</th></tr>";
 
     for (int i = 0; i < registros.size(); i++) {
         int puesto = i + 1;
@@ -51,6 +53,8 @@ QString TablaPuntajes::comoTexto(int puestoResaltado)
 
         texto = texto + "<td>" + QString::number(puesto) + "</td>"
                 + "<td>" + registros[i].nombre.toHtmlEscaped() + "</td>"
+                + "<td>" + registros[i].dificultad + "</td>"
+                + "<td>" + QString::number(registros[i].segundos) + " s</td>"
                 + "<td>" + QString::number(registros[i].puntaje) + "</td></tr>";
     }
 

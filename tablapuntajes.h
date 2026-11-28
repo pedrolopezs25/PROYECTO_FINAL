@@ -4,10 +4,12 @@
 #include <QString>
 #include <QList>
 
-// Un renglon de la tabla: quien jugo y cuantos puntos hizo
+// Un renglon de la tabla: quien jugo, en que dificultad, cuanto duro y cuantos puntos hizo
 struct Registro
 {
     QString nombre;
+    QString dificultad;   // "Facil" o "Dificil"
+    int segundos;         // duracion de la ronda que escogio
     int puntaje;
 };
 
@@ -21,7 +23,7 @@ public:
 
     // Mete un puntaje en su lugar. Devuelve el puesto (1, 2, 3...)
     // o 0 si no alcanzo a entrar en la tabla.
-    int agregar(QString nombre, int puntaje);
+    int agregar(QString nombre, QString dificultad, int segundos, int puntaje);
 
     // Arma la tabla como texto para mostrarla en pantalla.
     // "puestoResaltado" se pinta de otro color (el que acaba de jugar).

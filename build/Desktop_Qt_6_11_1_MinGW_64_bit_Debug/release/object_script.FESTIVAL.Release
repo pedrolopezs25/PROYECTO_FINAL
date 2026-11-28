@@ -9,6 +9,7 @@ release/nota.o
 release/objeto.o
 release/rival.o
 release/tablapuntajes.o
+release/trampa.o
 release/qrc_imagenes.o
 release/qrc_sonidos.o
 release/moc_juego.o

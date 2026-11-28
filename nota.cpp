@@ -12,7 +12,7 @@ Nota::Nota(double x, double y, int tecla, bool seMece)
     frecuencia = 1;
     tiempo = 0;
 
-    velY = 2;          // velocidad de caida (viene de Objeto)
+    velY = 3;          // velocidad de caida (viene de Objeto)
 
     // Las que se mecen son naranjas, las normales amarillas
     if (seMece) {

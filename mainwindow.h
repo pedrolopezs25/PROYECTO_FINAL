@@ -26,7 +26,9 @@ public:
     ~MainWindow();
 
 protected:
-    void keyPressEvent(QKeyEvent *evento) override;   // cuando se presiona una tecla
+    void keyPressEvent(QKeyEvent *evento) override;     // cuando se presiona una tecla
+    void keyReleaseEvent(QKeyEvent *evento) override;   // cuando se suelta una tecla
+    void changeEvent(QEvent *evento) override;          // minimizar / restaurar la ventana
 
 private slots:
     void sonarAcierto();
@@ -36,11 +38,13 @@ private slots:
 private:
     void nuevaPartida();     // muestra el menu y arranca un juego nuevo
     void mostrarTabla(int puntaje);   // tabla al final + jugar otra vez o salir
+    void reiniciarMusica();  // vuelve a poner la cancion desde el principio
 
     Ui::MainWindow *ui;
     QGraphicsView *vista;   // el "lente" que muestra la escena
     Juego *juego;
     bool dificil;
+    int duracion;            // segundos de cada ronda (lo escoge el menu)
     QString nombreJugador;   // el que esta jugando ahora
     TablaPuntajes tabla;     // dura mientras el programa este abierto
 

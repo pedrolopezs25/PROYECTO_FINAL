@@ -9,6 +9,7 @@ debug/nota.o
 debug/objeto.o
 debug/rival.o
 debug/tablapuntajes.o
+debug/trampa.o
 debug/qrc_imagenes.o
 debug/qrc_sonidos.o
 debug/moc_juego.o

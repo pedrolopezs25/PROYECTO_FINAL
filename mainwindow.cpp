@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <QUrl>
 #include "menuinicio.h"
+#include <QPainter>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -16,6 +17,11 @@ MainWindow::MainWindow(QWidget *parent)
     // La vista se crea UNA vez; en cada partida solo le cambiamos la escena
     vista = new QGraphicsView(this);
     vista->setFocusPolicy(Qt::NoFocus);   // las teclas las recibe la ventana
+    vista->setRenderHint(QPainter::SmoothPixmapTransform);   // imagenes suaves al girar
+    vista->setRenderHint(QPainter::Antialiasing);
+    // EFICIENCIA: el fondo (800x600) se pinta UNA vez y se guarda,
+    // en vez de volver a pintarlo 33 veces por segundo
+    vista->setCacheMode(QGraphicsView::CacheBackground);
     setCentralWidget(vista);
     setFixedSize(820, 620);
 
@@ -27,7 +33,6 @@ MainWindow::MainWindow(QWidget *parent)
     musica->setSource(QUrl("qrc:/sonidos/musica.mp3"));
     musica->setLoops(QMediaPlayer::Infinite);
     salidaMusica->setVolume(0.4);
-    musica->play();
 
     // Sonido de acierto
     sonidoAcierto = new QMediaPlayer(this);
@@ -58,6 +63,7 @@ void MainWindow::nuevaPartida()
     menu.exec();
     dificil = menu.esDificil();
     nombreJugador = menu.getNombre();
+    duracion = menu.getDuracion();
 
     // Si ya habia un juego de antes, lo borramos (liberar memoria).
     // deleteLater() lo borra apenas termine lo que esta haciendo, sin peligro.
@@ -74,13 +80,42 @@ void MainWindow::nuevaPartida()
     connect(juego, &Juego::acierto, this, &MainWindow::sonarAcierto);
     connect(juego, &Juego::fallo, this, &MainWindow::sonarFallo);
 
-    juego->iniciarNivel(1, dificil);
+    reiniciarMusica();   // la cancion arranca desde el principio
+    juego->iniciarNivel(1, dificil, duracion);
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *evento)
 {
+    // Si se deja la tecla presionada, Windows la "repite" sola.
+    // Esas repeticiones las ignoramos: el movimiento ya es continuo.
+    if (evento->isAutoRepeat()) {
+        return;
+    }
     // La ventana no decide nada: solo le pasa la tecla al juego
     juego->teclaPresionada(evento->key());
+}
+
+void MainWindow::keyReleaseEvent(QKeyEvent *evento)
+{
+    if (evento->isAutoRepeat()) {
+        return;
+    }
+    juego->teclaSoltada(evento->key());
+}
+
+void MainWindow::changeEvent(QEvent *evento)
+{
+    // EFICIENCIA: si minimizan la ventana, pausamos el juego y la musica
+    if (evento->type() == QEvent::WindowStateChange && juego != nullptr) {
+        if (isMinimized()) {
+            juego->pausar();
+            musica->pause();
+        } else {
+            juego->reanudar();
+            musica->play();
+        }
+    }
+    QMainWindow::changeEvent(evento);
 }
 
 void MainWindow::cuandoTerminaNivel(int numeroNivel, int puntaje)
@@ -88,8 +123,10 @@ void MainWindow::cuandoTerminaNivel(int numeroNivel, int puntaje)
     if (numeroNivel == 1) {
         QMessageBox::information(this, "Nivel 1 terminado",
                                  "Puntos: " + QString::number(puntaje) +
-                                     "\n\nNivel 2: atrapa los instrumentos con las flechas.");
-        juego->iniciarNivel(2, dificil);
+                                     "\n\nNivel 2: atrapa los instrumentos con las flechas"
+                                     "\ny salta las trampas con ESPACIO.");
+        reiniciarMusica();   // nuevo nivel = cancion desde el principio
+        juego->iniciarNivel(2, dificil, duracion);
     } else {
         mostrarTabla(puntaje);
     }
@@ -98,7 +135,11 @@ void MainWindow::cuandoTerminaNivel(int numeroNivel, int puntaje)
 void MainWindow::mostrarTabla(int puntaje)
 {
     // Metemos el puntaje en la tabla y vemos en que puesto quedo
-    int puesto = tabla.agregar(nombreJugador, puntaje);
+    QString textoDificultad = "Facil";
+    if (dificil) {
+        textoDificultad = "Dificil";
+    }
+    int puesto = tabla.agregar(nombreJugador, textoDificultad, duracion, puntaje);
 
     QString mensaje = "<b>" + nombreJugador.toHtmlEscaped() + "</b>, hiciste "
                       + QString::number(puntaje) + " puntos.<br>";
@@ -123,6 +164,13 @@ void MainWindow::mostrarTabla(int puntaje)
     } else {
         close();
     }
+}
+
+void MainWindow::reiniciarMusica()
+{
+    musica->stop();          // la paramos (por si se habia cortado)
+    musica->setPosition(0);  // la devolvemos al segundo 0
+    musica->play();          // y suena otra vez desde el principio
 }
 
 void MainWindow::sonarAcierto()

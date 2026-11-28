@@ -17,7 +17,8 @@ SOURCES += \
     nota.cpp \
     objeto.cpp \
     rival.cpp \
-    tablapuntajes.cpp
+    tablapuntajes.cpp \
+    trampa.cpp
 
 HEADERS += \
     arepa.h \
@@ -29,7 +30,8 @@ HEADERS += \
     nota.h \
     objeto.h \
     rival.h \
-    tablapuntajes.h
+    tablapuntajes.h \
+    trampa.h
 
 FORMS += \
     mainwindow.ui
