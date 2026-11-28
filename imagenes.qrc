@@ -1,0 +1,21 @@
+<RCC>
+    <qresource prefix="/">
+        <file>imagenes/fondo.png</file>
+        <file>imagenes/personaje1.png</file>
+        <file>imagenes/personaje2.png</file>
+        <file>imagenes/personaje3.png</file>
+        <file>imagenes/personaje4.png</file>
+        <file>imagenes/personaje1_lado.png</file>
+        <file>imagenes/personaje2_lado.png</file>
+        <file>imagenes/personaje3_lado.png</file>
+        <file>imagenes/personaje4_lado.png</file>
+        <file>imagenes/rival.png</file>
+        <file>imagenes/nota_a.png</file>
+        <file>imagenes/nota_s.png</file>
+        <file>imagenes/nota_d.png</file>
+        <file>imagenes/nota_f.png</file>
+        <file>imagenes/acordeon.png</file>
+        <file>imagenes/arepa.png</file>
+        <file>imagenes/trampa.png</file>
+    </qresource>
+</RCC>
